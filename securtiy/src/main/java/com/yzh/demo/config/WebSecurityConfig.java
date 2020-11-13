@@ -60,7 +60,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     /**
-     * 该方法用于访问数据库用户列表userDetial
+     * 该方法用于访问数据库用户列表userDetial(待完善)
      * 这里写入临时用户至内存中
      * @param auth
      * @throws Exception
