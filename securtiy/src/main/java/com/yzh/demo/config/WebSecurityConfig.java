@@ -11,6 +11,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
@@ -59,6 +60,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return NoOpPasswordEncoder.getInstance();
     }
 
+    @Override
+    public void configure(WebSecurity web) {
+        //解决静态资源被拦截的问题
+        web.ignoring().antMatchers("/login","/index");
+    }
+
+
     /**
      * 该方法用于访问数据库用户列表userDetial(待完善)
      * 这里写入临时用户至内存中
@@ -92,14 +100,48 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
+        /**
+         * 注意.authorizeRequests()要有开启和闭合否则配置不生效
+         */
+        http
+                //csrf 禁止使用
+                .csrf().disable()
+                //addFilterBefore使用自定义过滤器替代原过滤器逻辑，过滤器顺序链UsernamePasswordAuthenticationFilter->
+                .addFilterBefore(new JwtLoginFilter("/login",authenticationManager()), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtTokenFilter(),UsernamePasswordAuthenticationFilter.class)
+
+                /**
+                 * 配置过滤规则可以在重写的public void configure(WebSecurity web){}方法中配置
+                 * 会覆盖以下信息？
+                 */
+                //标签头，配置过滤规则
+                .authorizeRequests()
                 //绑定user角色账户可访问/hello接口
                 .antMatchers("/hello").hasRole("user")
                 //admin角色可访问/admin接口
                 .antMatchers("/admin").hasRole("admin")
                 .antMatchers("/index").permitAll()
                 //POST方法/login登录请求无需验证
-                .antMatchers(HttpMethod.POST, "/login").permitAll()
+                .antMatchers(HttpMethod.POST,"/login").permitAll()
+                .and()
+                .formLogin().loginPage("/login").permitAll()
+                .and()
+                //标签尾部，闭合标签
+                .authorizeRequests()
+                //其余请求均需要验证信息
+                .anyRequest().authenticated().and()
+
+                //登出配置
+                .logout().logoutUrl("/logout").logoutSuccessUrl("/login");
+
+/*        http.authorizeRequests()
+                //绑定user角色账户可访问/hello接口
+                .antMatchers("/hello").hasRole("user")
+                //admin角色可访问/admin接口
+                .antMatchers("/admin").hasRole("admin")
+                .antMatchers("/index").permitAll()
+                //POST方法/login登录请求无需验证
+                .antMatchers("/login").permitAll()
                 //其余请求均需要认证
                 .anyRequest().authenticated()
                 .and()
@@ -110,10 +152,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logout().logoutUrl("/logout").logoutSuccessUrl("/login")
                 //.logoutSuccessHandler()退出登录自定义配置
                 .and()
-                //addFilterBefore使用自定义过滤器替代原过滤器逻辑
+                //addFilterBefore使用自定义过滤器替代原过滤器逻辑，过滤器顺序链UsernamePasswordAuthenticationFilter->
                 .addFilterBefore(new JwtLoginFilter("/login",authenticationManager()), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtTokenFilter(),UsernamePasswordAuthenticationFilter.class)
                 //csrf 禁止使用
-                .csrf().disable();
+                .csrf().disable();*/
     }
 }

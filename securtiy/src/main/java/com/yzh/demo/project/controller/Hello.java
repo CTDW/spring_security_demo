@@ -18,4 +18,8 @@ public class Hello {
     public String admin() {
         return "hello admin !";
     }
+    @GetMapping("/index")
+    public String index(){
+        return "index";
+    }
 }
