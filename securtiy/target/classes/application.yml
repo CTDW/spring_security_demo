@@ -1,7 +1,12 @@
+
+server:
+  port: 1234
+
+
 spring:
   datasource:
     name: test  #数据库名
-    url: jdbc:mysql://localhost:3306/bysj #url
+    url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true&verifyServerCertificate=false&useSSL=false&nullCatalogMeansCurrent=true&allowMultiQueries=true #url
     username: root  #用户名
     password: root  #密码
     driver-class-name: com.mysql.jdbc.Driver  #数据库链接驱动
@@ -14,3 +19,12 @@ mybatis:
   mapperLocations: classpath:mybatis/ext/*.xml
   # 加载全局的配置文件
   configLocation: classpath:mybatis/mybatis-config.xml
+
+
+#JWT 密钥
+jwt:
+  secretKey: 78944878877848fg)
+  accessTokenExpireTime: PT2H
+  refreshTokenExpireTime: PT8H
+  refreshTokenExpireAppTime: P30D
+  issuer: ggk.com

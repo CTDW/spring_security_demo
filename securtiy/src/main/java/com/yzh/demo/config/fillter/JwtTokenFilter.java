@@ -1,11 +1,18 @@
 package com.yzh.demo.config.fillter;
 
+import com.yzh.demo.config.exception.CustomException;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.FilterChain;
@@ -18,6 +25,9 @@ import java.util.List;
 
 /**
  * @author yzh
+ *
+ * 授权阶段：授权时解析令牌和设置登录状态
+ *
  * JWT包含三部分数据：
  *
  * Header：头部，通常头部有两部分信息：
@@ -46,18 +56,40 @@ import java.util.List;
  * 然后执行过滤链使请求继续执行下去。
  */
 public class JwtTokenFilter extends GenericFilterBean {
+    
+    @Autowired
+    private UserDetailsService detailsService;
+    
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException,CustomException {
         HttpServletRequest req = (HttpServletRequest) servletRequest;
         String jwtToken = req.getHeader("authorization");
+        if (jwtToken == null && jwtToken.startsWith("bearer")){
+            throw new CustomException("效验失败，请求头无效内容");
+        }
         System.out.println(jwtToken);
+        //jwt解析
         Claims claims = Jwts.parser().setSigningKey("sang@123").parseClaimsJws(jwtToken.replace("Bearer",""))
                 .getBody();
-        //获取当前登录用户名
         String username = claims.getSubject();
-        List<GrantedAuthority> authorities = AuthorityUtils.commaSeparatedStringToAuthorityList((String) claims.get("authorities"));
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, null, authorities);
-        SecurityContextHolder.getContext().setAuthentication(token);
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null){
+            //获取权限
+            UserDetails userDetails = detailsService.loadUserByUsername(username);
+            if (userDetails != null){
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(
+                        req));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+
+        }
         filterChain.doFilter(req,servletResponse);
     }
+
+    public static void main(String[] args) {
+        String s = "eyJhbGciOiJIUzUxMiJ9.eyJhdXRob3JpdGllcyI6IiIsInN1YiI6ImFkbWluIiwiZXhwIjoxNjA1NTI3NzQ1fQ.WKAe7iO56KWrm5B9HuBT1xpmwRLd6CaH2jIIZNCubu5UCsoIEXJ9wneRnliPmkU4DvtnnenT-tdnfHFEtqt5sg";
+
+    }
+
 }
