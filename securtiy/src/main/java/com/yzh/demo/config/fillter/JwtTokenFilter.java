@@ -55,6 +55,7 @@ import java.util.List;
  * 创建一个UsernamePasswordAuthenticationToken放到当前的Context中，
  * 然后执行过滤链使请求继续执行下去。
  */
+
 public class JwtTokenFilter extends GenericFilterBean {
     
     @Autowired
@@ -87,9 +88,5 @@ public class JwtTokenFilter extends GenericFilterBean {
         filterChain.doFilter(req,servletResponse);
     }
 
-    public static void main(String[] args) {
-        String s = "eyJhbGciOiJIUzUxMiJ9.eyJhdXRob3JpdGllcyI6IiIsInN1YiI6ImFkbWluIiwiZXhwIjoxNjA1NTI3NzQ1fQ.WKAe7iO56KWrm5B9HuBT1xpmwRLd6CaH2jIIZNCubu5UCsoIEXJ9wneRnliPmkU4DvtnnenT-tdnfHFEtqt5sg";
-
-    }
 
 }

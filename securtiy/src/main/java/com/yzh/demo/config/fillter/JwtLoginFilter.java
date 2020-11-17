@@ -3,12 +3,11 @@ package com.yzh.demo.config.fillter;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yzh.demo.config.TokenSettings;
-import com.yzh.demo.project.domain.User;
-import com.yzh.demo.project.server.imp.UserDetailsServiceImp;
+import com.yzh.demo.utils.JwtUtil;
+import com.yzh.demo.utils.SpringUtils;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,18 +24,16 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * @author yzh
  * 用户登录的过滤器，在用户的登录的过滤器中校验用户是否登录成功，如果登录成功，
  * 则生成一个token返回给客户端，登录失败则给前端一个登录失败的提示。
  */
-public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
 
-    @Autowired
-    private UserDetailsServiceImp userDetailsServiceImp;
-    @Autowired
-    private TokenSettings tokenSettings;
+public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
 
 
     public JwtLoginFilter(String defaultFilterProcessesUrl, AuthenticationManager authenticationManager) {
@@ -73,8 +70,6 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
             password = "";
         }
         username = username.trim();
-        System.out.println(tokenSettings.getSecretKey());
-        //User user = new ObjectMapper().readValue(req.getInputStream(), User.class);
         return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(username,password));
     }
 
@@ -90,21 +85,21 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse resp, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
+        String userName = authResult.getName();
+        String passWord = authResult.getCredentials().toString();
         StringBuffer as = new StringBuffer();
+        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
         for (GrantedAuthority authority : authorities) {
             as.append(authority.getAuthority())
                     .append(",");
         }
-        String jwt = Jwts.builder()
-                //配置用户角色
-                .claim("authorities", as)
-                .setSubject(authResult.getName())
-                .setExpiration(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
-                .signWith(SignatureAlgorithm.HS512,"sang@123")
-                .compact();
+        as = (as.charAt(as.length()) == ',')? as.deleteCharAt(as.length()-1) :as;
+        map.put("authorities",as);
+        String token = JwtUtil.generateToken(new StringBuffer().append(userName)
+                .append(":").append(passWord) + "", map);
         resp.setContentType("application/json;charset=utf-8");
         PrintWriter out = resp.getWriter();
-        out.write(new ObjectMapper().writeValueAsString(jwt));
+        out.write(new ObjectMapper().writeValueAsString(token));
         out.flush();
         out.close();
     }

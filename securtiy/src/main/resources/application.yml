@@ -1,6 +1,6 @@
 
 server:
-  port: 1234
+  port: 8080
 
 
 spring:
@@ -27,4 +27,4 @@ jwt:
   accessTokenExpireTime: PT2H
   refreshTokenExpireTime: PT8H
   refreshTokenExpireAppTime: P30D
-  issuer: ggk.com
+  issuer: yzh

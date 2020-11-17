@@ -1,13 +1,11 @@
 package com.yzh.demo.project.controller;
 
+import com.yzh.demo.config.TokenConfig;
 import com.yzh.demo.config.exception.CustomException;
-import com.yzh.demo.project.domain.User;
 import com.yzh.demo.project.server.HelloSerice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -17,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class Hello {
     @Autowired
     private HelloSerice helloSerice;
+    @Autowired
+    private TokenConfig settings;
 
 /*    @PostMapping("/login")
     public String login(@RequestBody User user){
