@@ -40,9 +40,6 @@ import org.springframework.stereotype.Component;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private UserDetailsServiceImp userDetailsService;
-
-    @Autowired
     private CustomAuthenticationProvider authProvider;
 
 
@@ -120,9 +117,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.authorizeRequests()
                 //绑定user角色账户可访问/hello接口
-                .antMatchers("/hello").hasRole("user")
+                .antMatchers("/hello").hasRole("NOMAL")
                 //admin角色可访问/admin接口,也可在Rest接口使用@Perauthorize
-                //.antMatchers("/admin").hasRole("admin")
+                .antMatchers("/admin").hasRole("ADMIN")
                 /**
                  * 配置过滤规则可以在重写的public void configure(WebSecurity web){}方法中配置
                  * 会覆盖以下信息？

@@ -1,6 +1,9 @@
 package com.yzh.demo.config.fillter;
 
 import com.yzh.demo.config.exception.CustomException;
+import com.yzh.demo.project.server.imp.UserDetailsServiceImp;
+import com.yzh.demo.utils.JwtUtil;
+import com.yzh.demo.utils.SpringUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -13,6 +16,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.FilterChain;
@@ -58,27 +62,36 @@ import java.util.List;
 
 public class JwtTokenFilter extends GenericFilterBean {
     
-    @Autowired
-    private UserDetailsService detailsService;
+
     
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException,CustomException {
         HttpServletRequest req = (HttpServletRequest) servletRequest;
         String jwtToken = req.getHeader("authorization");
-        if (jwtToken == null && jwtToken.startsWith("bearer")){
-            throw new CustomException("效验失败，请求头无效内容");
+        //验证是否携带token
+        if (StringUtils.isEmpty(jwtToken)) {
+            throw new CustomException("无效的token");
+        }
+        Claims claims = JwtUtil.getClaimsFromToken(jwtToken);
+        //验证toekn是否有效
+        if (claims == null) {
+            throw new CustomException("无效的token");
+        }
+        //验证token是否过期
+        if (JwtUtil.isTokenExpired(jwtToken)){
+            //刷新token
+            JwtUtil.refreshToken(jwtToken,null);
         }
         System.out.println(jwtToken);
         //jwt解析
-        Claims claims = Jwts.parser().setSigningKey("sang@123").parseClaimsJws(jwtToken.replace("Bearer",""))
-                .getBody();
-        String username = claims.getSubject();
+        String username = (String) claims.get("sub");
+
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null){
             //获取权限
-            UserDetails userDetails = detailsService.loadUserByUsername(username);
+            UserDetails userDetails = SpringUtils.getBean(UserDetailsServiceImp.class).loadUserByUsername(username);
             if (userDetails != null){
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
+                        username, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(
                         req));
                 SecurityContextHolder.getContext().setAuthentication(authentication);

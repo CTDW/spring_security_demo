@@ -24,13 +24,14 @@ public class Hello {
     }*/
 
     //允许被user角色访问接口
+    //@PreAuthorize("hasRole('ROLE_NOMAL')")
     @GetMapping("/hello")
     public String hello() {
         return "hello jwt !";
     }
 
     //允许被admin角色访问的接口
-    @PreAuthorize("hasRole('admin')")
+    //@PreAuthorize("hasRole('NOMAL')")
     @GetMapping("/admin")
     public String admin() {
         return "hello admin !";

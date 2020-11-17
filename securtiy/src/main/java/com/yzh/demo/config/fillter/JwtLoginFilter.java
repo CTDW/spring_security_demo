@@ -13,7 +13,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.servlet.FilterChain;
@@ -86,17 +88,21 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
     protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse resp, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
         String userName = authResult.getName();
-        String passWord = authResult.getCredentials().toString();
         StringBuffer as = new StringBuffer();
         LinkedHashMap<String, Object> map = new LinkedHashMap<>();
         for (GrantedAuthority authority : authorities) {
             as.append(authority.getAuthority())
                     .append(",");
         }
-        as = (as.charAt(as.length()) == ',')? as.deleteCharAt(as.length()-1) :as;
+        as = (as.charAt(as.length()-1) == ',')? as.deleteCharAt(as.length()-1) :as;
         map.put("authorities",as);
-        String token = JwtUtil.generateToken(new StringBuffer().append(userName)
-                .append(":").append(passWord) + "", map);
+        String token = JwtUtil.generateToken(userName, map);
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                userName, null, authorities);
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(
+                req));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         resp.setContentType("application/json;charset=utf-8");
         PrintWriter out = resp.getWriter();
         out.write(new ObjectMapper().writeValueAsString(token));
