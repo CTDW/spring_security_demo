@@ -5,4 +5,4 @@
 * ***认证：应用于对用户登录进行一系列的效验。***
 * ***授权：应用于用户登录成功后对用户资源访问权限的控制。***
                                                             过滤链图
-<div align=center><img src="https://github.com/CTDW/spring_security_demo/blob/main/imgs/filtechainr.png" width="300" height="450" /></div>
+<div align=center><img src="https://github.com/CTDW/spring_security_demo/blob/main/imgs/filtechainr.png" width="1000" height="450" /></div>
