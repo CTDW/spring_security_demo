@@ -6,6 +6,48 @@
 * ***授权：应用于用户登录成功后对用户资源访问权限的控制。***
 ![image](https://github.com/CTDW/spring_security_demo/blob/main/imgs/filtechainr.png)
 
+## 创建表
+1、角色表
+```
+DROP TABLE IF EXISTS `role`;
+CREATE TABLE `role`  (
+  `id` bigint(0) NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+INSERT INTO `role` VALUES (1, 'ROLE_ADMIN');
+INSERT INTO `role` VALUES (2, 'ROLE_NOMAL');
+SET FOREIGN_KEY_CHECKS = 1;
+```
+2、用户表
+```
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user`  (
+  `id` bigint(0) NOT NULL,
+  `username` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `password` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+INSERT INTO `user` VALUES (1, 'user', '123');
+INSERT INTO `user` VALUES (2, 'admin', '123');
+
+SET FOREIGN_KEY_CHECKS = 1;
+```
+3、用户角色表
+```
+DROP TABLE IF EXISTS `role_user`;
+CREATE TABLE `role_user`  (
+  `role_id` bigint(0) NOT NULL,
+  `user_id` bigint(0) NOT NULL
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+INSERT INTO `role_user` VALUES (1, 2);
+INSERT INTO `role_user` VALUES (2, 1);
+
+SET FOREIGN_KEY_CHECKS = 1;
+```
 
 ## 1、pom文件引入
 ```java
