@@ -24,7 +24,7 @@
 
 ## 2、Security配置中心
 **新建配置中心类继承WebSecurityConfigurerAdapter，其中需要重写三个重要方法。**
-* **一、该方法主要作用是配置项目的访问权限以及添加自定义过滤器，和一些保护配置。这些配置方法和html中的标签相似，如果方法没有闭合则方法不生效。我在写不需要拦截页面时（perimitAll方法）时发现配置并不生效最后查了半天资料才发现是格式原因。以下是一些主要的方法解释：**
+* **一、该方法主要作用是配置项目的访问权限以及添加自定义过滤器，和一些保护配置。其中末尾的addFilterBefore是使用自定义过滤器替代默认过滤器。这些配置方法和html中的标签相似，如果方法没有闭合则方法不生效。我在写不需要拦截页面时（perimitAll方法）时发现配置并不生效最后查了半天资料才发现是格式原因。**
 ```java
     @Override
     protected void configure(HttpSecurity http) throws Exception {
