@@ -31,7 +31,7 @@ public class Hello {
     }
 
     //允许被admin角色访问的接口
-    //@PreAuthorize("hasRole('NOMAL')")
+    @PreAuthorize("hasRole('ROLE_NOMAL')")
     @GetMapping("/admin")
     public String admin() {
         return "hello admin !";

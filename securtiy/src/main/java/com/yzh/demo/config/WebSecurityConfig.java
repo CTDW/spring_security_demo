@@ -119,7 +119,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 //绑定user角色账户可访问/hello接口
                 .antMatchers("/hello").hasRole("NOMAL")
                 //admin角色可访问/admin接口,也可在Rest接口使用@Perauthorize
-                .antMatchers("/admin").hasRole("ADMIN")
+                //.antMatchers("/admin").hasRole("ADMIN")
                 /**
                  * 配置过滤规则可以在重写的public void configure(WebSecurity web){}方法中配置
                  * 会覆盖以下信息？
