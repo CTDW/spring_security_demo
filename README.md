@@ -5,7 +5,7 @@
 * ***认证：应用于对用户登录进行一系列的效验。***
 * ***授权：应用于用户登录成功后对用户资源访问权限的控制。***
 
-![image](https://github.com/CTDW/spring_security_demo/blob/main/imgs/filtechainr.png)
+![image](imgs/filtechainr.png)
 
 ## 创建表
 1、角色表
