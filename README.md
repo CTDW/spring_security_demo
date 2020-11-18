@@ -117,3 +117,39 @@ SET FOREIGN_KEY_CHECKS = 1;
 * **`hasAuthority        |   如果有参数，参数表示权限，则其权限可以访问`**
 * **`hasAnyRole          |   如果有参数，参数表示角色，则其中任何一个角色可以访问`**
 * **`hasAnyAuthority     |   如果有参数，参数表示权限，则其中任何一个权限可以访问`**
+
+
+**二、重写该方法，配置中心将会采用自定义的登录过滤器**
+```java
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        //自定义账户验证
+        auth.authenticationProvider(authProvider);
+        //写入内存
+/*        auth.inMemoryAuthentication().withUser("admin")
+                .password("123").roles("admin")
+                .and()
+                .withUser("sang")
+                .password("456")
+                .roles("user");*/
+    }
+```
+
+**三、该方法可以同一配置不需要拦截的路由**
+```java
+    @Override
+    public void configure(WebSecurity web) {
+        //解决静态资源被拦截的问题
+        web.ignoring().antMatchers("/index");
+    }
+```
+
+启动项目后项目可能会报错，原因是找不到AuthenticationManager这个类，重写以下代码。
+```java
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception
+    {
+        return super.authenticationManagerBean();
+    }
+```
