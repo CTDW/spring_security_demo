@@ -83,8 +83,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         //自定义账户验证
         auth.authenticationProvider(authProvider);
-
-
         //写入内存
 /*        auth.inMemoryAuthentication().withUser("admin")
                 .password("123").roles("admin")
@@ -138,7 +136,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logout().logoutUrl("/logout").logoutSuccessUrl("/login")
                 //.logoutSuccessHandler()退出登录自定义配置
                 .and()
-                //该过滤器可以写在rest接口上
+                //自定义过滤器
                 .addFilterBefore(new JwtLoginFilter("/login",authenticationManager()), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtTokenFilter(),UsernamePasswordAuthenticationFilter.class)
                 //csrf 禁止使用

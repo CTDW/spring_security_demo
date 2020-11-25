@@ -97,11 +97,11 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
         as = (as.charAt(as.length()-1) == ',')? as.deleteCharAt(as.length()-1) :as;
         map.put("authorities",as);
         String token = JwtUtil.generateToken(userName, map);
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+/*        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 userName, null, authorities);
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(
                 req));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        SecurityContextHolder.getContext().setAuthentication(authentication);*/
 
         resp.setContentType("application/json;charset=utf-8");
         PrintWriter out = resp.getWriter();
